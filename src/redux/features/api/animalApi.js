@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 export const animalApi = createApi({
     reducerPath : "animalApi",
-    baseQuery : fetchBaseQuery({baseUrl : "http://localhost:5000/api"}),
+    baseQuery : fetchBaseQuery({baseUrl : "https://antopolis-server-job-task.vercel.app/api"}),
     endpoints : (builder)=>({
         getAllAnimals : builder.query({
             query:()=> "/animal"
