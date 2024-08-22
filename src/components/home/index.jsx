@@ -38,6 +38,7 @@ const HomePage = () => {
     (info) => info.category === animalData
   );
 
+
   const {
     register,
     handleSubmit,
@@ -72,6 +73,12 @@ const HomePage = () => {
       throw new error(error.message);
     }
   };
+
+
+  if(isLoading){
+    return <p className="h-screen text-white font-bold text-2xl p-20">Data is Loading .....</p>
+     
+  }
 
   return (
     <div className="h-full md:h-screen">
