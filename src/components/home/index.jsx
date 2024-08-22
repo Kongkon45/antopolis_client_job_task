@@ -30,8 +30,10 @@ const tapData = [
 const HomePage = () => {
   const { data, isLoading, error } = useGetAllAnimalsQuery({});
   const [animalData, setAnimalData] = useState("Land Animal");
+  const [animal, setAnimal] = useState({});
   const [createAnimal] = useCreateAnimalMutation();
   const [isOpenCategoryModal, setIsOpenCategoryModel] = useState(false);
+  const [categoryText, setCategoryText] = useState("");
   const filterAnimalData = data?.data?.filter(
     (info) => info.category === animalData
   );
@@ -45,38 +47,37 @@ const HomePage = () => {
 
   const onSubmitAnimal = async (data) => {
     const imageURL = await imageUpload(data.image[0]);
-
     const payload = {
       name: data?.name,
       image: imageURL,
-      category: data?.category,
     };
+    // set animal information to state
+    setAnimal(payload);
+    // after set animal then close the modal
+    document.getElementById("my_modal_2").close();
+  };
+
+  const handleSaveAniaml = async (data) => {
+    const payload = animal;
+    payload.category = categoryText;
+    console.log(payload);
 
     try {
-      if (imageURL) {
-        const result = await createAnimal(payload).unwrap();
-        console.log("Animal Data is created:", result);
-      }
-      reset();
+      const res = await createAnimal(payload);
+      console.log(res);
+      alert("Animal create successfull");
+      setIsOpenCategoryModel(false);
     } catch (error) {
-      console.error("Failed to create Animal Data:", error);
+      alert(error.message || "Somthing wrong pelase try again");
+      throw new error(error.message);
     }
   };
 
-  const onSubmitCategory = (data) => {
-    // Handle category submission logic here
-    console.log("Category created:", data.category);
-    reset();
-  };
-
   return (
-    <div className="h-screen">
-      <h3 className="text-3xl text-white font-bold text-center py-3">
-        Animal Information
-      </h3>
-      <div className="flex justify-between items-center px-20 py-10">
+    <div className="h-full md:h-screen">
+      <div className="md:flex justify-between items-center px-4 md:px-20 py-10">
         {/* tap  */}
-        <div className="flex gap-10">
+        <div className="flex gap-3 md:gap-10 pb-5 md:pb-0">
           {tapData?.map((tap) => {
             return (
               <div key={tap.id}>
@@ -92,7 +93,7 @@ const HomePage = () => {
         </div>
 
         {/* button  */}
-        <div className="flex gap-10">
+        <div className="flex gap-3 md:gap-10">
           <button
             onClick={() => document.getElementById("my_modal_2").showModal()}
             className="text-red-500 hover:text-green-500 text-lg font-bold py-1 px-4 rounded-[12px] border border-red-500 hover:border-green-500"
@@ -180,24 +181,9 @@ const HomePage = () => {
                 <p className="text-red-500">{errors.image.message}</p>
               )}
             </div>
-
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-sm font-bold">Category</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Category Name"
-                className="input input-bordered"
-                {...register("category", { required: "Category is required" })}
-              />
-              {errors.category && (
-                <p className="text-red-500">{errors.category.message}</p>
-              )}
-            </div>
             <div className="mt-4">
               <button type="submit" className="btn btn-neutral w-full">
-                Create
+                Create Animal
               </button>
             </div>
           </form>
@@ -205,7 +191,7 @@ const HomePage = () => {
       </dialog>
 
       {/* add category  */}
-      <dialog  className="modal" open={isOpenCategoryModal}>
+      <dialog className="modal" open={isOpenCategoryModal}>
         <div className="modal-box">
           <div className="flex justify-between items-center">
             <h3 className="font-bold text-[20px]">Add Category</h3>
@@ -230,27 +216,31 @@ const HomePage = () => {
               </svg>
             </button>
           </div>
-          <form onSubmit={handleSubmit(onSubmitCategory)} method="dialog">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-sm font-bold">Category</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Category Name"
-                className="input input-bordered"
-                {...register("category", { required: "Category is required" })}
-              />
-              {errors.category && (
-                <p className="text-red-500">{errors.category.message}</p>
-              )}
-            </div>
-            <div className="mt-4">
-              <button type="submit" className="btn btn-neutral w-full">
-                Create
-              </button>
-            </div>
-          </form>
+
+          {/* category form */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text text-sm font-bold">Category</span>
+            </label>
+            <input
+              required
+              type="text"
+              placeholder="Category Name"
+              className="input input-bordered"
+              onChange={(e) => setCategoryText(e.target.value)}
+            />
+          </div>
+
+          {/* SUBMIT ACTION */}
+          <div className="mt-4">
+            <button
+              onClick={() => handleSaveAniaml()}
+              type="submit"
+              className="btn btn-neutral w-full"
+            >
+              Save
+            </button>
+          </div>
         </div>
       </dialog>
     </div>
